@@ -1,4 +1,4 @@
-function treeAdjacencyListToNestedList(adjList, root, bidirectional = true) {
+function treeAdjacencyListToNestedList(adjList, root = null, bidirectional = true) {
     // use biAdjList. If bidirectional is true, biAdjList is the same as adjList, otherwise it is the bidirectional version of adjList
     const biAdjList = bidirectional ? adjList : makeAdjacencyListBidirectional(adjList);
     const visited = new Set();
@@ -111,13 +111,6 @@ function clearSVG(svg) {
     svg.selectAll("*").remove();
 }
 
-width = 600;
-height = 600;
-node_radius = 20;
-margin = 50;
-const svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
 
 function renderTreeLayout(svg, nestedList, width, height, margin, node_radius) {
     // use d3 tree layout to render the tree with nodes as circles and edges as straight lines
@@ -156,3 +149,39 @@ function renderTreeLayout(svg, nestedList, width, height, margin, node_radius) {
         .attr("y", (d) => d.y + margin + 7)
         .text((d) => d.data.id);
 }
+
+adjacency_list =
+{
+    "0": ["2", "3"],
+    "1": ["4", "5"],
+    "2": ["6", "7"],
+    "3": [],
+    "4": ["11"],
+    "5": ["12", "13"],
+    "6": [],
+    "7": [],
+    "8": ["3"],
+    "9": ["3"],
+    "10": ["3"],
+    "11": [],
+    "12": [],
+    "13": [],
+    "14": ["5"]
+};
+width = 600;
+height = 600;
+node_radius = 20;
+margin = 50;
+const svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+biAdjList = makeAdjacencyListBidirectional(adjacency_list);
+
+let components = getConnectedComponents(biAdjList);
+
+// for each component that is a tree, render it
+trees = components.filter(component => isTree(component, false));
+nonTrees = components.filter(component => trees.indexOf(component) === -1);
+
+renderTreeLayout(svg, treeAdjacencyListToNestedList(components[0], Object.keys(components[0])[0], false), width, height, margin, node_radius);
