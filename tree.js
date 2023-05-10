@@ -107,22 +107,8 @@ function mergeAdjacencyListsofUnconnectedGraphs(adjList1, adjList2) {
 }
 
 
-adjacency_list = {
-    "0": ["1", "2", "3"],
-    "1": ["4", "5"],
-    "2": ["6", "7"],
-    "3": [],
-    "4": ["11"],
-    "5": ["12", "13"],
-    "6": [],
-    "7": [],
-    "8": ["3"],
-    "9": ["3"],
-    "10": ["3"],
-    "11": [],
-    "12": [],
-    "13": [],
-    "14": ["5"]
+function clearSVG(svg) {
+    svg.selectAll("*").remove();
 }
 
 width = 600;
