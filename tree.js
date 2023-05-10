@@ -189,8 +189,9 @@ adjacency_list =
     "13": [],
     "14": ["5"]
 };
-width = 600;
-height = 600;
+// get width and height according to window size
+width = window.innerWidth;
+height = window.innerHeight;
 node_radius = 20;
 margin = 50;
 const svg = d3.select("body").append("svg")
@@ -205,3 +206,11 @@ let components = getConnectedComponents(biAdjList);
 trees = components.filter(component => isTree(component, false));
 trees = trees.map(tree => treeAdjacencyListToNestedList(tree, bidirectional = false));
 renderMultipleTrees(svg, trees, width, height, margin, node_radius);
+
+// update width when window is resized
+window.addEventListener("resize", () => {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    clearSVG(svg);
+    renderMultipleTrees(svg, trees, width, height, margin, node_radius);
+});
