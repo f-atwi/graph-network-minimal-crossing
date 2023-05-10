@@ -1,15 +1,21 @@
-function convert_adjacency_list_to_nested_list(adjacency_list, root, visited = new Set(), bidirectional_adjacency_list = null) {
-    if (bidirectional_adjacency_list === null) {
-        bidirectional_adjacency_list = makeAdjacencyListBidirectional(adjacency_list)
-    }
-    const nestedNodes = {
-        id: root,
-        children: []
+function treeAdjacencyListToNestedList(adjList, root, bidirectional = true) {
+    // use biAdjList. If bidirectional is true, biAdjList is the same as adjList, otherwise it is the bidirectional version of adjList
+    const biAdjList = bidirectional ? adjList : makeAdjacencyListBidirectional(adjList);
+    const visited = new Set();
+
+    function dfs(node) {
+        visited.add(node);
+        const children = biAdjList[node].filter(child => !visited.has(child));
+        const nestedObj = { id: node.toString(), children: [] };
+        children.forEach(child => {
+            const childObj = dfs(child);
+            nestedObj.children.push(childObj);
+        });
+        return nestedObj;
     }
 
-    if (bidirectional_adjacency_list[root] === null || adjacency_list[root].length === 0) {
-        return nestedNodes
-    }
+    return dfs(root);
+}
 
     visited.add(root)
 
