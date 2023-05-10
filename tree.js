@@ -70,6 +70,17 @@ function getConnectedComponents(adjList) {
 }
 
 
+function isBidirectional(adjacencyList) {
+    for (const [node, neighbors] of Object.entries(adjacencyList)) {
+        for (const neighbor of neighbors) {
+            if (!adjacencyList[neighbor] || !adjacencyList[neighbor].includes(node)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 
 function makeAdjacencyListBidirectional(adjacencyList) {
     const bidirectionalAdjacencyList = { ...adjacencyList };
