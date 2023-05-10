@@ -42,22 +42,31 @@ function isTree(adjList, bidirectional = true) {
     return visited.size === Object.keys(adjList).length;
 }
 
-function constructNestedList(adjList, root) {
-    biTree = makeAdjacencyListBidirectional(adjList);
-    const visited = new Set();
 
-    function dfs(node) {
-        visited.add(node);
-        const children = biTree[node].filter(child => !visited.has(child));
-        const nestedObj = { id: node.toString(), children: [] };
-        children.forEach(child => {
-            const childObj = dfs(child);
-            nestedObj.children.push(childObj);
-        });
-        return nestedObj;
+function getConnectedComponents(adjList) {
+    const visited = new Set();
+    const components = [];
+
+    for (let node in adjList) {
+        if (!visited.has(node)) {
+            const component = {};
+            dfs(node, component);
+            components.push(component);
+        }
     }
 
-    return dfs(root);
+    function dfs(node, component) {
+        visited.add(node);
+        component[node] = adjList[node];
+
+        for (let neighbor of adjList[node]) {
+            if (!visited.has(neighbor)) {
+                dfs(neighbor, component);
+            }
+        }
+    }
+
+    return components;
 }
 
 
