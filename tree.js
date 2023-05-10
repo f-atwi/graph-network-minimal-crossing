@@ -1,6 +1,9 @@
 function treeAdjacencyListToNestedList(adjList, root = null, bidirectional = true) {
     // use biAdjList. If bidirectional is true, biAdjList is the same as adjList, otherwise it is the bidirectional version of adjList
     const biAdjList = bidirectional ? adjList : makeAdjacencyListBidirectional(adjList);
+    if (!root) {
+        root = Object.keys(biAdjList)[0];
+    }
     const visited = new Set();
 
     function dfs(node) {
