@@ -99,6 +99,12 @@ function makeAdjacencyListBidirectional(adjacencyList) {
 }
 
 
+function mergeAdjacencyListsofUnconnectedGraphs(adjList1, adjList2) {
+    // Combine the two lists into a single object using Object.assign()
+    // Does not remove duplicates
+    // Use to merge unconnected graphs
+    return Object.assign({}, adjList1, adjList2);
+}
 
 
 adjacency_list = {
