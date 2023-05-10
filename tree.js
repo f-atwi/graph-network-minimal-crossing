@@ -114,6 +114,24 @@ function clearSVG(svg) {
     svg.selectAll("*").remove();
 }
 
+function renderMultipleTrees(svg, trees, width, height, margin, node_radius) {
+    // render multiple trees in a grid
+    const numTrees = trees.length;
+    const numCols = Math.ceil(Math.sqrt(numTrees));
+    const numRows = Math.ceil(numTrees / numCols);
+
+    const treeWidth = (width - (2 * margin)) / numCols;
+    const treeHeight = (height - (2 * margin)) / numRows;
+
+    trees.forEach((tree, i) => {
+        const treeSVG = svg.append("g")
+            .attr("transform", `translate(${(i % numCols) * treeWidth + margin}, ${Math.floor(i / numCols) * treeHeight + margin})`);
+        renderTreeLayout(treeSVG, tree, treeWidth, treeHeight, 0, node_radius);
+    }
+    );
+
+
+}
 
 function renderTreeLayout(svg, nestedList, width, height, margin, node_radius) {
     // use d3 tree layout to render the tree with nodes as circles and edges as straight lines
@@ -185,6 +203,5 @@ let components = getConnectedComponents(biAdjList);
 
 // for each component that is a tree, render it
 trees = components.filter(component => isTree(component, false));
-nonTrees = components.filter(component => trees.indexOf(component) === -1);
-
-renderTreeLayout(svg, treeAdjacencyListToNestedList(components[0], Object.keys(components[0])[0], false), width, height, margin, node_radius);
+trees = trees.map(tree => treeAdjacencyListToNestedList(tree, bidirectional = false));
+renderMultipleTrees(svg, trees, width, height, margin, node_radius);
