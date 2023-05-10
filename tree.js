@@ -17,15 +17,29 @@ function treeAdjacencyListToNestedList(adjList, root, bidirectional = true) {
     return dfs(root);
 }
 
-    visited.add(root)
 
-    for (const child of adjacency_list[root].concat(get_adjacent_nodes(adjacency_list, inverse_adjacency_list, root))) {
-        if (!visited.has(child)) {
-            nestedNodes.children.push(convert_adjacency_list_to_nested_list(adjacency_list, child, visited, inverse_adjacency_list))
+function isTree(adjList, bidirectional = true) {
+    const biAdjList = bidirectional ? adjList : makeAdjacencyListBidirectional(adjList);
+    const visited = new Set();
+
+    // Check if the graph is acyclic
+    function dfs(node, parent) {
+        visited.add(node);
+        for (const child of biAdjList[node]) {
+            if (!visited.has(child)) {
+                if (!dfs(child, node)) {
+                    return false;  // Detected a cycle
+                }
+            } else if (child !== parent) {
+                return false;  // Detected a cycle
+            }
         }
+        return true;
     }
 
-    return nestedNodes
+    // Check if the graph is connected
+    dfs(Object.keys(adjList)[0], null);
+    return visited.size === Object.keys(adjList).length;
 }
 
 function constructNestedList(adjList, root) {
