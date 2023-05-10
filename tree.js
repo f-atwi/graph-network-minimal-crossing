@@ -119,38 +119,40 @@ const svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-// use d3 tree layout to render the tree with nodes as circles and edges as straight lines
-const treeLayout = d3.tree().size([width - (2 * margin), height - (2 * margin)]);
-const root = d3.hierarchy(constructNestedList(adjacency_list, "3"));
-treeLayout(root);
+function renderTreeLayout(svg, nestedList, width, height, margin, node_radius) {
+    // use d3 tree layout to render the tree with nodes as circles and edges as straight lines
+    const treeLayout = d3.tree().size([width - (2 * margin), height - (2 * margin)]);
+    const root = d3.hierarchy(nestedList);
+    treeLayout(root);
 
-// add edges
-svg.selectAll(".edge")
-    .data(root.links())
-    .enter()
-    .append("line")
-    .attr("class", "link")
-    .attr("x1", (d) => d.source.x + margin)
-    .attr("y1", (d) => d.source.y + margin)
-    .attr("x2", (d) => d.target.x + margin)
-    .attr("y2", (d) => d.target.y + margin);
+    // add edges
+    svg.selectAll(".edge")
+        .data(root.links())
+        .enter()
+        .append("line")
+        .attr("class", "link")
+        .attr("x1", (d) => d.source.x + margin)
+        .attr("y1", (d) => d.source.y + margin)
+        .attr("x2", (d) => d.target.x + margin)
+        .attr("y2", (d) => d.target.y + margin);
 
-// add nodes
-svg.selectAll(".node")
-    .data(root.descendants())
-    .enter()
-    .append("circle")
-    .attr("class", "node")
-    .attr("cx", (d) => d.x + margin)
-    .attr("cy", (d) => d.y + margin)
-    .attr("r", node_radius);
+    // add nodes
+    svg.selectAll(".node")
+        .data(root.descendants())
+        .enter()
+        .append("circle")
+        .attr("class", "node")
+        .attr("cx", (d) => d.x + margin)
+        .attr("cy", (d) => d.y + margin)
+        .attr("r", node_radius);
 
-// add labels
-svg.selectAll(".label")
-    .data(root.descendants())
-    .enter()
-    .append("text")
-    .attr("class", "label")
-    .attr("x", (d) => d.x + margin)
-    .attr("y", (d) => d.y + margin + 7)
-    .text((d) => d.data.id);
+    // add labels
+    svg.selectAll(".label")
+        .data(root.descendants())
+        .enter()
+        .append("text")
+        .attr("class", "label")
+        .attr("x", (d) => d.x + margin)
+        .attr("y", (d) => d.y + margin + 7)
+        .text((d) => d.data.id);
+}
