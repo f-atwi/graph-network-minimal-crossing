@@ -46,7 +46,50 @@ function isTree(adjList, bidirectional = true) {
 }
 
 
-function getConnectedComponents(adjList) {
+function getConnectedComponents(adjList, bidirectional = false) {
+    if (bidirectional) {
+        return getConnectedComponents_undirected(adjList);
+    } else {
+        return getConnectedComponents_directed(adjList);
+    }
+}
+
+
+function getConnectedComponents_directed(adjList) {
+    const visited = new Set();
+    const components = [];
+
+    for (let node in adjList) {
+        if (!visited.has(node)) {
+            const component = {};
+            dfs(node, component);
+            components.push(component);
+        }
+    }
+
+    function dfs(node, component) {
+        visited.add(node);
+        component[node] = adjList[node];
+
+        for (let neighbor of adjList[node]) {
+            if (!visited.has(neighbor)) {
+                dfs(neighbor, component);
+            }
+        }
+
+        // Reverse DFS
+        for (let neighbor in adjList) {
+            if (!visited.has(neighbor) && adjList[neighbor].includes(node)) {
+                dfs(neighbor, component);
+            }
+        }
+    }
+
+    return components;
+}
+
+
+function getConnectedComponents_undirected(adjList) {
     const visited = new Set();
     const components = [];
 
