@@ -21,6 +21,30 @@ function treeAdjacencyListToNestedList(adjList, root = null, bidirectional = tru
 }
 
 
+function addNodeToAdjacencyList(adjList, node, neighbors = []) {
+    // if node already exists, add neighbors to existing list (no duplicates)
+    // if node does not exist, add node to list with neighbors
+    for (const neighbor of neighbors) {
+        if (!adjList[neighbor]) {
+            addNodeToAdjacencyList(adjList, neighbor, []);
+        }
+    }
+    if (adjList[node]) {
+        adjList[node] = [...new Set([...adjList[node], ...neighbors])];
+    } else {
+        adjList[node] = neighbors;
+    }
+}
+
+
+function addEdgeToAdjacencyList(adjList, parentNode, childNode, bidirectional = false) {
+    if (bidirectional) {
+        addEdgeToAdjacencyList_bidirectional(adjList, childNode, parentNode);
+    }
+    addNodeToAdjacencyList(adjList, parentNode, [childNode]);
+}
+
+
 function isTree(adjList, bidirectional = true) {
     const biAdjList = bidirectional ? adjList : makeAdjacencyListBidirectional(adjList);
     const visited = new Set();
