@@ -54,6 +54,14 @@ function removeNodeFromAdjacencyList(adjList, node) {
 }
 
 
+function removeEdgeFromAdjacencyList(adjList, parentNode, childNode, bidirectional = false) {
+    if (bidirectional) {
+        removeEdgeFromAdjacencyList(adjList, childNode, parentNode);
+    }
+    adjList[parentNode] = adjList[parentNode].filter(n => n !== childNode);
+}
+
+
 function isTree(adjList, bidirectional = true) {
     const biAdjList = bidirectional ? adjList : makeAdjacencyListBidirectional(adjList);
     const visited = new Set();
