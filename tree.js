@@ -45,6 +45,15 @@ function addEdgeToAdjacencyList(adjList, parentNode, childNode, bidirectional = 
 }
 
 
+function removeNodeFromAdjacencyList(adjList, node) {
+    // remove node from adjacency list
+    for (const n in adjList) {
+        adjList[n] = adjList[n].filter(neighbor => neighbor !== node);
+    }
+    delete adjList[node];
+}
+
+
 function isTree(adjList, bidirectional = true) {
     const biAdjList = bidirectional ? adjList : makeAdjacencyListBidirectional(adjList);
     const visited = new Set();
