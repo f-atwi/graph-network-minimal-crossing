@@ -1,4 +1,4 @@
-function treeAdjacencyListToNestedList(adjList, root = null, bidirectional = true) {
+export function treeAdjacencyListToNestedList(adjList, root = null, bidirectional = true) {
     // use biAdjList. If bidirectional is true, biAdjList is the same as adjList, otherwise it is the bidirectional version of adjList
     const biAdjList = bidirectional ? adjList : makeAdjacencyListBidirectional(adjList);
     if (!root) {
@@ -21,7 +21,7 @@ function treeAdjacencyListToNestedList(adjList, root = null, bidirectional = tru
 }
 
 
-function addNodeToAdjacencyList(adjList, node, neighbors = []) {
+export function addNodeToAdjacencyList(adjList, node, neighbors = []) {
     // if node already exists, add neighbors to existing list (no duplicates)
     // if node does not exist, add node to list with neighbors
     for (const neighbor of neighbors) {
@@ -37,7 +37,7 @@ function addNodeToAdjacencyList(adjList, node, neighbors = []) {
 }
 
 
-function addEdgeToAdjacencyList(adjList, parentNode, childNode, bidirectional = false) {
+export function addEdgeToAdjacencyList(adjList, parentNode, childNode, bidirectional = false) {
     if (bidirectional) {
         addEdgeToAdjacencyList_bidirectional(adjList, childNode, parentNode);
     }
@@ -45,7 +45,7 @@ function addEdgeToAdjacencyList(adjList, parentNode, childNode, bidirectional = 
 }
 
 
-function removeNodeFromAdjacencyList(adjList, node) {
+export function removeNodeFromAdjacencyList(adjList, node) {
     // remove node from adjacency list
     for (const n in adjList) {
         adjList[n] = adjList[n].filter(neighbor => neighbor !== node);
@@ -54,7 +54,7 @@ function removeNodeFromAdjacencyList(adjList, node) {
 }
 
 
-function removeEdgeFromAdjacencyList(adjList, parentNode, childNode, bidirectional = false) {
+export function removeEdgeFromAdjacencyList(adjList, parentNode, childNode, bidirectional = false) {
     if (bidirectional) {
         removeEdgeFromAdjacencyList(adjList, childNode, parentNode);
     }
@@ -62,7 +62,7 @@ function removeEdgeFromAdjacencyList(adjList, parentNode, childNode, bidirection
 }
 
 
-function isTree(adjList, bidirectional = true) {
+export function isTree(adjList, bidirectional = true) {
     const biAdjList = bidirectional ? adjList : makeAdjacencyListBidirectional(adjList);
     const visited = new Set();
 
@@ -87,7 +87,7 @@ function isTree(adjList, bidirectional = true) {
 }
 
 
-function getConnectedComponents(adjList, bidirectional = false) {
+export function getConnectedComponents(adjList, bidirectional = false) {
     if (bidirectional) {
         return getConnectedComponents_undirected(adjList);
     } else {
@@ -96,7 +96,7 @@ function getConnectedComponents(adjList, bidirectional = false) {
 }
 
 
-function getConnectedComponents_directed(adjList) {
+export function getConnectedComponents_directed(adjList) {
     const visited = new Set();
     const components = [];
 
@@ -130,7 +130,7 @@ function getConnectedComponents_directed(adjList) {
 }
 
 
-function getConnectedComponents_undirected(adjList) {
+export function getConnectedComponents_undirected(adjList) {
     const visited = new Set();
     const components = [];
 
@@ -157,7 +157,7 @@ function getConnectedComponents_undirected(adjList) {
 }
 
 
-function isBidirectional(adjacencyList) {
+export function isBidirectional(adjacencyList) {
     for (const [node, neighbors] of Object.entries(adjacencyList)) {
         for (const neighbor of neighbors) {
             if (!adjacencyList[neighbor] || !adjacencyList[neighbor].includes(node)) {
@@ -169,7 +169,7 @@ function isBidirectional(adjacencyList) {
 }
 
 
-function makeAdjacencyListBidirectional(adjacencyList) {
+export function makeAdjacencyListBidirectional(adjacencyList) {
     const bidirectionalAdjacencyList = {};
     for (const [node, neighbors] of Object.entries(adjacencyList)) {
         if (!bidirectionalAdjacencyList[node])
@@ -189,7 +189,7 @@ function makeAdjacencyListBidirectional(adjacencyList) {
 }
 
 
-function mergeAdjacencyListsofUnconnectedGraphs(adjList1, adjList2) {
+export function mergeAdjacencyListsofUnconnectedGraphs(adjList1, adjList2) {
     // Combine the two lists into a single object using Object.assign()
     // Does not remove duplicates
     // Use to merge unconnected graphs
@@ -197,11 +197,11 @@ function mergeAdjacencyListsofUnconnectedGraphs(adjList1, adjList2) {
 }
 
 
-function clearSVG(svg) {
+export function clearSVG(svg) {
     svg.selectAll("*").remove();
 }
 
-function renderMultipleTrees(svg, trees, width, height, margin, node_radius) {
+export function renderMultipleTrees(svg, trees, width, height, margin, node_radius) {
     // render multiple trees in a grid
     const numTrees = trees.length;
     const numCols = Math.ceil(Math.sqrt(numTrees));
@@ -220,7 +220,7 @@ function renderMultipleTrees(svg, trees, width, height, margin, node_radius) {
 
 }
 
-function renderTreeLayout(svg, nestedList, width, height, margin, node_radius) {
+export function renderTreeLayout(svg, nestedList, width, height, margin, node_radius) {
     // use d3 tree layout to render the tree with nodes as circles and edges as straight lines
     const treeLayout = d3.tree().size([width - (2 * margin), height - (2 * margin)]);
     const root = d3.hierarchy(nestedList);
@@ -257,46 +257,3 @@ function renderTreeLayout(svg, nestedList, width, height, margin, node_radius) {
         .attr("y", (d) => d.y + margin + 7)
         .text((d) => d.data.id);
 }
-
-adjacency_list =
-{
-    "0": ["2", "3"],
-    "1": ["4", "5"],
-    "2": ["6", "7"],
-    "3": [],
-    "4": ["11"],
-    "5": ["12", "13"],
-    "6": [],
-    "7": [],
-    "8": ["3"],
-    "9": ["3"],
-    "10": ["3"],
-    "11": [],
-    "12": [],
-    "13": [],
-    "14": ["5"]
-};
-// get width and height according to window size
-width = window.innerWidth;
-height = window.innerHeight;
-node_radius = 20;
-margin = 50;
-const svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
-
-
-let components = getConnectedComponents(adjacency_list);
-
-// for each component that is a tree, render it
-trees = components.filter(component => isTree(component, false));
-trees = trees.map(tree => treeAdjacencyListToNestedList(tree, undefined, bidirectional = false));
-renderMultipleTrees(svg, trees, width, height, margin, node_radius);
-
-// update width when window is resized
-window.addEventListener("resize", () => {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    clearSVG(svg);
-    renderMultipleTrees(svg, trees, width, height, margin, node_radius);
-});
