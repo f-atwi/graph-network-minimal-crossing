@@ -153,10 +153,14 @@ function isBidirectional(adjacencyList) {
 
 
 function makeAdjacencyListBidirectional(adjacencyList) {
-    const bidirectionalAdjacencyList = { ...adjacencyList };
-
+    const bidirectionalAdjacencyList = {};
     for (const [node, neighbors] of Object.entries(adjacencyList)) {
+        if (!bidirectionalAdjacencyList[node])
+            bidirectionalAdjacencyList[node] = [];
         for (const neighbor of neighbors) {
+            // Add the original edge
+            bidirectionalAdjacencyList[node].push(neighbor);
+            // Add the reverse edge if it doesn't exist already
             if (!bidirectionalAdjacencyList[neighbor]) {
                 bidirectionalAdjacencyList[neighbor] = [node];
             } else if (!bidirectionalAdjacencyList[neighbor].includes(node)) {
@@ -164,7 +168,6 @@ function makeAdjacencyListBidirectional(adjacencyList) {
             }
         }
     }
-
     return bidirectionalAdjacencyList;
 }
 
