@@ -268,13 +268,12 @@ const svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-biAdjList = makeAdjacencyListBidirectional(adjacency_list);
 
-let components = getConnectedComponents(biAdjList);
+let components = getConnectedComponents(adjacency_list);
 
 // for each component that is a tree, render it
 trees = components.filter(component => isTree(component, false));
-trees = trees.map(tree => treeAdjacencyListToNestedList(tree, bidirectional = false));
+trees = trees.map(tree => treeAdjacencyListToNestedList(tree, undefined, bidirectional = false));
 renderMultipleTrees(svg, trees, width, height, margin, node_radius);
 
 // update width when window is resized
