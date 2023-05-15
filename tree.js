@@ -96,6 +96,40 @@ export function getConnectedComponents(adjList, bidirectional = false) {
 }
 
 
+export function addNodetoAdjacencyListComponents(components, node, neighbors = []) {
+    // each of the components is of the form {node: [neighbors]}
+    // if node has no neighbors, add it to a new component
+    if (neighbors.length === 0) {
+        components.push({ [node]: [] });
+        return;
+    }
+
+    // merging components if no longer disconnected
+
+    // get a list (no duplicates) of the components that contain the neighbors
+    const neighborComponents = [];
+    for (const neighbor of neighbors) {
+        for (const component of components) {
+            if (component[neighbor]) {
+                if (!neighborComponents.includes(component)) {
+                    neighborComponents.push(component);
+                    components.splice(components.indexOf(component), 1);
+                }
+                break;
+            }
+        }
+    }
+
+    const mergedComponents = mergeAdjacencyListsOfUnconnectedGraphs(...neighborComponents);
+
+    // add the node to the merged components
+    addNodeToAdjacencyList(mergedComponents, node, neighbors);
+
+    // add the merged components to the components list
+    components.push(mergedComponents);
+}
+
+
 export function getConnectedComponents_directed(adjList) {
     const visited = new Set();
     const components = [];
@@ -189,11 +223,11 @@ export function makeAdjacencyListBidirectional(adjacencyList) {
 }
 
 
-export function mergeAdjacencyListsofUnconnectedGraphs(adjList1, adjList2) {
-    // Combine the two lists into a single object using Object.assign()
+export function mergeAdjacencyListsOfUnconnectedGraphs(...adjLists) {
+    // Combine the lists into a single object using Object.assign()
     // Does not remove duplicates
     // Use to merge unconnected graphs
-    return Object.assign({}, adjList1, adjList2);
+    return Object.assign({}, ...adjLists);
 }
 
 
