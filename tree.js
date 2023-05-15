@@ -189,6 +189,30 @@ export function addEdgeToAdjacencyListComponents(components, parentNode, childNo
 }
 
 
+export function removeEdgeFromAdjacencyListComponents(components, parentNode, childNode) {
+    // get the component that contain the parent and child nodes
+    let parentComponent;
+    for (const component of components) {
+        if (component[parentNode] && component[childNode]) {
+            parentComponent = component;
+            break;
+        }
+    }
+
+    // remove the edge from the component
+    removeEdgeFromAdjacencyList(parentComponent, parentNode, childNode);
+
+    // if the component is now disconnected, separate it into separate components
+    const separateComponents = getConnectedComponents(parentComponent);
+    if (separateComponents.length > 1) {
+        // remove the component from the components list
+        components.splice(components.indexOf(parentComponent), 1);
+        // add the separated components to the components list
+        components.push(...separateComponents);
+    }
+}
+
+
 export function getConnectedComponents_directed(adjList) {
     const visited = new Set();
     const components = [];
