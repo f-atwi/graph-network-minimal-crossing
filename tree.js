@@ -130,11 +130,18 @@ export function addNodetoAdjacencyListComponents(components, node, neighbors = [
 }
 
 
-export function removeNodeFromAdjacenyListComponents(components, node) {
+export function removeNodeFromAdjacencyListComponents(components, node) {
     // remove node from adjacency list
     for (const component of components) {
         if (component[node]) {
             removeNodeFromAdjacencyList(component, node);
+
+            // if the component is empty, remove it from the components list
+            if (Object.keys(component).length === 0) {
+                components.splice(components.indexOf(component), 1);
+                break;
+            }
+
 
             const separateComponents = getConnectedComponents(component);
             if (separateComponents.length > 1) {
@@ -146,10 +153,6 @@ export function removeNodeFromAdjacenyListComponents(components, node) {
             break;
         }
     }
-
-
-    // remove empty components
-    components = components.filter(component => Object.keys(component).length > 0);
 }
 
 
