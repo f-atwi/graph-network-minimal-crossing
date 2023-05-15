@@ -218,59 +218,45 @@ export function initializeTreeLayout() {
 }
 
 
-export function organizeTrees(svg) {
-    // set the svg width to the width of the window
+export function organizeTrees(svg, margin = 25) {
     const treeGroup = svg.selectAll(".tree");
 
-    // get the dimensions of the trees, organize them in a way that they are not overlapping and the area where they are placed is as square as possible
-    const treeDimensions = [];
+    let currentWidth = 0;
+    let currentHeight = margin;
+    let maxHeight = currentHeight;
+
+    const windowWidth = window.innerWidth;
 
     treeGroup.each(function (d, i) {
         const tree = d3.select(this);
-        const treeWidth = tree.node().getBBox().width;
-        const treeHeight = tree.node().getBBox().height;
-
-        const treeLeft = tree.node().getBBox().x;
-        const treeTop = tree.node().getBBox().y;
-
-        treeDimensions.push({ width: treeWidth, height: treeHeight, left: treeLeft, top: treeTop });
-
+        const { width, height, x, y } = tree.node().getBBox();
 
         // draw a bounding box around each tree for debugging
         tree.append("rect")
-            .attr("x", treeLeft)
-            .attr("y", treeTop)
-            .attr("width", treeWidth)
-            .attr("height", treeHeight)
+            .attr("x", x)
+            .attr("y", y)
+            .attr("width", width)
+            .attr("height", height)
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 1);
+
+        if (maxHeight < height + currentHeight) {
+            maxHeight = height + currentHeight;
+        }
+
+        if (currentWidth + width > windowWidth) {
+            currentHeight = margin + maxHeight;
+            currentWidth = 0;
+        }
+
+        currentWidth -= x;
+        tree.attr("transform", `translate(${currentWidth}, ${currentHeight})`);
+        currentWidth += width + x + margin;
+
     });
 
-
-    let currentwidth = 0;
-    let currentHeight = 25;
-    let maxHeight = 0;
-
-    // translate the trees and the bounding boxes so that they are not overlapping
-    treeGroup.each(function (d, i) {
-        if (maxHeight < treeDimensions[i].height + currentHeight) {
-            maxHeight = treeDimensions[i].height + currentHeight;
-        }
-        // if the current tree is too wide to fit in the current row(window size), move it to the next row
-        if (currentwidth + treeDimensions[i].width > window.innerWidth) {
-            currentHeight = 25 + maxHeight;
-            currentwidth = 0;
-        }
-        currentwidth = currentwidth - treeDimensions[i].left;
-        currentwidth += treeDimensions[i].width + treeDimensions[i].left + 25;
-
-        const tree = d3.select(this);
-        tree.attr("transform", `translate(${currentwidth}, ${currentHeight})`);
-    });
-    // modify the svg height so that all the trees are visible
-    svg.attr("height", maxHeight)
-        .attr("width", window.innerWidth);
+    svg.attr("height", maxHeight).attr("width", windowWidth);
 }
 
 
