@@ -33,7 +33,7 @@ let components = tree.getConnectedComponents(adjacency_list);
 // for each component that is a tree, render it
 let trees = components.filter(component => tree.isTree(component, false));
 trees = trees.map(t => tree.treeAdjacencyListToNestedList(t, undefined, false));
-tree.renderMultipleTrees(svg, trees, width, height, margin, node_radius);
+tree.renderTrees(svg, trees);
 
 // update width when window is resized
 window.addEventListener("resize", () => {

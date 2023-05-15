@@ -201,59 +201,67 @@ export function clearSVG(svg) {
     svg.selectAll("*").remove();
 }
 
-export function renderMultipleTrees(svg, trees, width, height, margin, node_radius) {
-    // render multiple trees in a grid
-    const numTrees = trees.length;
-    const numCols = Math.ceil(Math.sqrt(numTrees));
-    const numRows = Math.ceil(numTrees / numCols);
 
-    const treeWidth = (width - (2 * margin)) / numCols;
-    const treeHeight = (height - (2 * margin)) / numRows;
-
-    trees.forEach((tree, i) => {
-        const treeSVG = svg.append("g")
-            .attr("transform", `translate(${(i % numCols) * treeWidth + margin}, ${Math.floor(i / numCols) * treeHeight + margin})`);
-        renderTreeLayout(treeSVG, tree, treeWidth, treeHeight, 0, node_radius);
+export function renderTrees(svg, trees) {
+    // render each tree in the list of trees
+    const treeLayout = initializeTreeLayout();
+    for (const tree of trees) {
+        renderTree(svg, tree, treeLayout);
     }
-    );
+}
+
+
+export function initializeTreeLayout() {
+    return d3.tree()
+        .nodeSize([50, 50])
+        .separation((a, b) => a.parent === b.parent ? 1 : 2);
 
 
 }
 
-export function renderTreeLayout(svg, nestedList, width, height, margin, node_radius) {
+
+export function renderTree(svg, nestedList, treeLayout = null) {
+    if (!treeLayout) {
+        treeLayout = initializeTreeLayout();
+    }
     // use d3 tree layout to render the tree with nodes as circles and edges as straight lines
-    const treeLayout = d3.tree().size([width - (2 * margin), height - (2 * margin)]);
+
     const root = d3.hierarchy(nestedList);
+
     treeLayout(root);
 
+    // create a group for the tree
+    const treeGroup = svg.append("g")
+        .attr("class", "tree");
+
     // add edges
-    svg.selectAll(".edge")
+    treeGroup.selectAll(".edge")
         .data(root.links())
         .enter()
         .append("line")
         .attr("class", "link")
-        .attr("x1", (d) => d.source.x + margin)
-        .attr("y1", (d) => d.source.y + margin)
-        .attr("x2", (d) => d.target.x + margin)
-        .attr("y2", (d) => d.target.y + margin);
+        .attr("x1", (d) => d.source.x)
+        .attr("y1", (d) => d.source.y)
+        .attr("x2", (d) => d.target.x)
+        .attr("y2", (d) => d.target.y);
 
     // add nodes
-    svg.selectAll(".node")
+    treeGroup.selectAll(".node")
         .data(root.descendants())
         .enter()
         .append("circle")
         .attr("class", "node")
-        .attr("cx", (d) => d.x + margin)
-        .attr("cy", (d) => d.y + margin)
-        .attr("r", node_radius);
+        .attr("cx", (d) => d.x)
+        .attr("cy", (d) => d.y)
+        .attr("r", 20);
 
     // add labels
-    svg.selectAll(".label")
+    treeGroup.selectAll(".label")
         .data(root.descendants())
         .enter()
         .append("text")
         .attr("class", "label")
-        .attr("x", (d) => d.x + margin)
-        .attr("y", (d) => d.y + margin + 7)
+        .attr("x", (d) => d.x)
+        .attr("y", (d) => d.y + 7)
         .text((d) => d.data.id);
 }
