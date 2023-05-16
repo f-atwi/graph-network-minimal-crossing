@@ -70,10 +70,8 @@ export function isDirectedTree(adjList) {
     const inDegree = {};
     for (const node in adjList) {
         inDegree[node] = 0;
-    }
-    for (const node in adjList) {
         for (const neighbor of adjList[node]) {
-            inDegree[neighbor] += 1;
+            inDegree[neighbor] = (inDegree[neighbor] || 0) + 1;
         }
     }
 
