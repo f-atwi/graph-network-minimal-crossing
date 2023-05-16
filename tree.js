@@ -62,7 +62,53 @@ export function removeEdgeFromAdjacencyList(adjList, parentNode, childNode, bidi
 }
 
 
-export function isTree(adjList, bidirectional = true) {
+export function isDirectedTree(adjList) {
+    // check if the adjacency list is a directed tree by finding the root
+    // if there is no root, return false
+    // the graph is assumed to be connected
+    // get list of nodes with zero in-degree
+    const inDegree = {};
+    for (const node in adjList) {
+        inDegree[node] = 0;
+    }
+    for (const node in adjList) {
+        for (const neighbor of adjList[node]) {
+            inDegree[neighbor] += 1;
+        }
+    }
+
+    // get possible roots by using filter
+    const roots = Object.keys(inDegree).filter(node => inDegree[node] === 0);
+
+    // if there is no root, return false
+    if (roots.length === 0) {
+        return false;
+    }
+
+    // for all the roots, check if the graph is a tree
+    for (const root of roots) {
+        const visited = new Set();
+
+        function dfs(node) {
+            visited.add(node);
+            for (const child of adjList[node]) {
+                if (!visited.has(child)) {
+                    dfs(child);
+                }
+            }
+        }
+
+        dfs(root);
+        // if all the nodes are visited, return true
+        if (visited.size === Object.keys(adjList).length) {
+            return root;
+        }
+    }
+    return false;
+}
+
+
+export function isUndirectedTree(adjList, bidirectional = false) {
     const biAdjList = bidirectional ? adjList : makeAdjacencyListBidirectional(adjList);
     const visited = new Set();
 
