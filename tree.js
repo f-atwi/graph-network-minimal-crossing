@@ -74,21 +74,100 @@ export function removeEdgeFromAdjacencyList(adjList, parentNode, childNode, bidi
 }
 
 
+export function getIndegrees(adjacencyList) {
+    // get the in-degree of each node in the adjacency list
+    const inDegree = {};
+    for (const node in adjacencyList) {
+        inDegree[node] = 0;
+        for (const neighbor of adjacencyList[node]) {
+            inDegree[neighbor] = (inDegree[neighbor] || 0) + 1;
+        }
+    }
+    return inDegree;
+}
+
+
+export function getPossibleRoots_leastIndegree(adjacencyList) {
+    // create an object with the in-degree as the key and the nodes with that in-degree as the value
+    const inDegree = getIndegrees(adjacencyList);
+    const indegreeNodes = {};
+    for (const node in inDegree) {
+        if (!indegreeNodes[inDegree[node]]) {
+            indegreeNodes[inDegree[node]] = [];
+        }
+        indegreeNodes[inDegree[node]].push(node);
+    }
+    return indegreeNodes;
+} // example: input: {0: ["1", "2"], 1: ["2"], 2: ["3"], 3: []} output: {0: ["0"], 1: ["1", ], 2: ["2"]}
+
+
+export function getNodesWithZeroIndegree(adjacencyList) {
+    // get list of nodes with zero in-degree
+    const inDegree = getIndegrees(adjacencyList);
+    const roots = Object.keys(inDegree).filter(node => inDegree[node] === 0);
+    return roots;
+}
+
+
+export function getNumberofReachableNodes(adjacencyList, node) {
+    // get the nodes reachable from the node
+    const visited = new Set();
+
+    function dfs(node) {
+        visited.add(node);
+        for (const neighbor of adjacencyList[node]) {
+            if (!visited.has(neighbor)) {
+                dfs(neighbor);
+            }
+        }
+    }
+
+    dfs(node);
+    return visited.size;
+}
+
+
+export function getPossibleRoots_mostReachableNodes(adjacencyList) {
+    // create an object with the number of reachable nodes as the key and the nodes with that number of reachable nodes as the value
+    const reachableNodes = {};
+    for (const node in adjacencyList) {
+        const reachable = getNumberofReachableNodes(adjacencyList, node);
+        if (!reachableNodes[reachable]) {
+            reachableNodes[reachable] = [];
+        }
+        reachableNodes[reachable].push(node);
+    }
+    return reachableNodes;
+}
+
+
+export function getBestRoot(adjacencyList) {
+    // returns the best root for visualizing the tree
+    // the best root is the node with the most reachable nodes and the least in-degree
+    const reachableNodes = getPossibleRoots_mostReachableNodes(adjacencyList);
+    const indegreeNodes = getPossibleRoots_leastIndegree(adjacencyList);
+
+    // get the intersection of the reachable nodes and the nodes with the least in-degree
+    const bestRoots = {};
+    for (const reachable in reachableNodes) {
+        if (indegreeNodes[reachable]) {
+            bestRoots[reachable] = [...new Set([...reachableNodes[reachable], ...indegreeNodes[reachable]])];
+        }
+    }
+
+    // get the best root
+    const bestRoot = bestRoots[Math.max(...Object.keys(bestRoots))];
+    return bestRoot;
+}
+
+
 export function isDirectedTree(adjList) {
     // check if the adjacency list is a directed tree by finding the root
     // if there is no root, return false
     // the graph is assumed to be connected
-    // get list of nodes with zero in-degree
-    const inDegree = {};
-    for (const node in adjList) {
-        inDegree[node] = 0;
-        for (const neighbor of adjList[node]) {
-            inDegree[neighbor] = (inDegree[neighbor] || 0) + 1;
-        }
-    }
 
-    // get possible roots by using filter
-    const roots = Object.keys(inDegree).filter(node => inDegree[node] === 0);
+    // get possible roots
+    const roots = getNodesWithZeroIndegree(adjList);
 
     // if there is no root, return false
     if (roots.length === 0) {
@@ -119,62 +198,68 @@ export function isDirectedTree(adjList) {
 
 
 export function isUndirectedTree(adjList) {
-    let hasCycle = false;
+    return isUndirectedAcyclicGraph(adjList);
+}
 
-    function dfs(node, parentNode, visited) {
-        visited.add(node);
 
-        for (const neighbor of adjList[node]) {
-            if (visited.has(neighbor) && neighbor !== parentNode) {
-                hasCycle = true; // Detected a cycle
-            } else if (!visited.has(neighbor)) {
-                dfs(neighbor, node, visited);
-            }
-        }
-    }
+export function isDirectedAcyclicGraph(adjacencyList) {
+    const visited = new Set();
+    // define searchVisited as a set without instantiating it as new set
+    let searchVisited;
 
-    for (const node in adjList) {
-        const visited = new Set();
+    for (let node in adjacencyList) {
         if (!visited.has(node)) {
-            dfs(node, null, visited);
-            if (hasCycle) {
-                return false; // Detected a cycle in one of the connected components
+            searchVisited = new Set(); // Separate set for each search
+            if (hasCycle(node, null)) {
+                return false;
             }
         }
     }
     return true;
+
+    function hasCycle(node, parent) {
+        visited.add(node);
+        searchVisited.add(node); // Add node to the set for the current search
+
+        for (let neighbor of adjacencyList[node]) {
+            if (!visited.has(neighbor)) {
+                if (hasCycle(neighbor, node)) {
+                    return true;
+                }
+            } else if (searchVisited.has(neighbor) && neighbor !== parent) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 
-export function isUndirectedTreeAndGetPseudoRoot(adjList) {
-    // Less efficient than isUndirectedTree (isUndirectedTree returns when it detects a cycle, this one does not since it needs to find the pseudo root)
-    // Returns the pseudo root if the graph is an undirected tree, otherwise returns null
-    // The pseudo root is the node with the most neighbors if the graph is considered directed
-    // Using the pseudo root to display the graph as a tree where the edges are mostly in the same direction
+export function isUndirectedAcyclicGraph(adjacencyList) {
+    // i.e. is an undirected tree
+    const bidirectionalAdjacencyList = makeAdjacencyListBidirectional(adjacencyList);
 
-    let maxNodesReached = 0;
-    let root = null;
+    // get any node to be the root
+    const root = Object.keys(bidirectionalAdjacencyList)[0];
+    const visited = new Set();
 
-    function dfs(node, parentNode, visited) {
+    function dfs(node, parent) {
         visited.add(node);
 
-        for (const neighbor of adjList[node]) {
+        for (let neighbor of bidirectionalAdjacencyList[node]) {
             if (!visited.has(neighbor)) {
-                dfs(neighbor, node, visited);
+                if (dfs(neighbor, node)) {
+                    return true;
+                }
+            } else if (neighbor !== parent) {
+                return true;
             }
         }
+        return false;
     }
 
-    for (const node in adjList) {
-        const visited = new Set();
-        dfs(node, null, visited);
-        if (visited.size > maxNodesReached) {
-            maxNodesReached = visited.size;
-            root = node;
-        }
-    }
-
-    return root;
+    return !dfs(root, null);
 }
 
 
