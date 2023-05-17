@@ -106,28 +106,31 @@ export function isDirectedTree(adjList) {
 }
 
 
-export function isUndirectedTree(adjList, bidirectional = false) {
-    const biAdjList = bidirectional ? adjList : makeAdjacencyListBidirectional(adjList);
-    const visited = new Set();
+export function isUndirectedTree(adjList) {
+    let hasCycle = false;
 
-    // Check if the graph is acyclic
-    function dfs(node, parent) {
+    function dfs(node, parentNode, visited) {
         visited.add(node);
-        for (const child of biAdjList[node]) {
-            if (!visited.has(child)) {
-                if (!dfs(child, node)) {
-                    return false;  // Detected a cycle
-                }
-            } else if (child !== parent) {
-                return false;  // Detected a cycle
+
+        for (const neighbor of adjList[node]) {
+            if (visited.has(neighbor) && neighbor !== parentNode) {
+                hasCycle = true; // Detected a cycle
+            } else if (!visited.has(neighbor)) {
+                dfs(neighbor, node, visited);
             }
         }
-        return true;
     }
 
-    // Check if the graph is connected
-    dfs(Object.keys(adjList)[0], null);
-    return visited.size === Object.keys(adjList).length;
+    for (const node in adjList) {
+        const visited = new Set();
+        if (!visited.has(node)) {
+            dfs(node, null, visited);
+            if (hasCycle) {
+                return false; // Detected a cycle in one of the connected components
+            }
+        }
+    }
+    return true;
 }
 
 
