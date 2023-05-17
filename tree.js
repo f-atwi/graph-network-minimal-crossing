@@ -1,18 +1,30 @@
-export function treeAdjacencyListToNestedList(adjList, root = null, bidirectional = true) {
-    // use biAdjList. If bidirectional is true, biAdjList is the same as adjList, otherwise it is the bidirectional version of adjList
-    const biAdjList = bidirectional ? adjList : makeAdjacencyListBidirectional(adjList);
+export function treeAdjacencyListToNestedList(adjList, root = null) {
     if (!root) {
-        root = Object.keys(biAdjList)[0];
+        root = Object.keys(adjList)[0];
     }
     const visited = new Set();
+    const reverseEdges = {};
+
+    // Build reverse edges
+    Object.entries(adjList).forEach(([node, neighbors]) => {
+        neighbors.forEach(neighbor => {
+            if (!reverseEdges[neighbor]) {
+                reverseEdges[neighbor] = [];
+            }
+            reverseEdges[neighbor].push(node);
+        });
+    });
 
     function dfs(node) {
         visited.add(node);
-        const children = biAdjList[node].filter(child => !visited.has(child));
         const nestedObj = { id: node.toString(), children: [] };
+        // get children from forward and reverse edges (no duplicates, a node might not be listed in reverse edges). Do not visit visited nodes
+        const children = [...new Set([...adjList[node], ...(reverseEdges[node] || [])])];
         children.forEach(child => {
-            const childObj = dfs(child);
-            nestedObj.children.push(childObj);
+            if (!visited.has(child)) {
+                const childObj = dfs(child);
+                nestedObj.children.push(childObj);
+            }
         });
         return nestedObj;
     }
