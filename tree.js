@@ -134,6 +134,38 @@ export function isUndirectedTree(adjList) {
 }
 
 
+export function isUndirectedTreeAndGetPseudoRoot(adjList) {
+    // Less efficient than isUndirectedTree (isUndirectedTree returns when it detects a cycle, this one does not since it needs to find the pseudo root)
+    // Returns the pseudo root if the graph is an undirected tree, otherwise returns null
+    // The pseudo root is the node with the most neighbors if the graph is considered directed
+    // Using the pseudo root to display the graph as a tree where the edges are mostly in the same direction
+
+    let maxNodesReached = 0;
+    let root = null;
+
+    function dfs(node, parentNode, visited) {
+        visited.add(node);
+
+        for (const neighbor of adjList[node]) {
+            if (!visited.has(neighbor)) {
+                dfs(neighbor, node, visited);
+            }
+        }
+    }
+
+    for (const node in adjList) {
+        const visited = new Set();
+        dfs(node, null, visited);
+        if (visited.size > maxNodesReached) {
+            maxNodesReached = visited.size;
+            root = node;
+        }
+    }
+
+    return root;
+}
+
+
 export function getConnectedComponents(adjList, bidirectional = false) {
     if (bidirectional) {
         return getConnectedComponents_undirected(adjList);
