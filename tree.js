@@ -487,6 +487,20 @@ export function makeAdjacencyListBidirectional(adjacencyList) {
 }
 
 
+export function getReverseAdjacencyList(adjacencyList) {
+    const reverseAdjacencyList = {};
+    for (const node in adjacencyList) {
+        for (const neighbor of adjacencyList[node]) {
+            if (!reverseAdjacencyList[neighbor]) {
+                reverseAdjacencyList[neighbor] = [];
+            }
+            reverseAdjacencyList[neighbor].push(node);
+        }
+    }
+    return reverseAdjacencyList;
+}
+
+
 export function mergeAdjacencyListsOfUnconnectedGraphs(...adjLists) {
     // Combine the lists into a single object using Object.assign()
     // Does not remove duplicates
