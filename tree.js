@@ -467,16 +467,18 @@ export function isBidirectional(adjacencyList) {
 
 export function makeAdjacencyListBidirectional(adjacencyList) {
     const bidirectionalAdjacencyList = {};
-    for (const [node, neighbors] of Object.entries(adjacencyList)) {
-        if (!bidirectionalAdjacencyList[node])
-            bidirectionalAdjacencyList[node] = [];
-        for (const neighbor of neighbors) {
-            // Add the original edge
-            bidirectionalAdjacencyList[node].push(neighbor);
-            // Add the reverse edge if it doesn't exist already
+    // add all the nodes to the bidirectional adjacency list
+    for (const node in adjacencyList) {
+        if (!bidirectionalAdjacencyList[node]) {
+            // copy the neighbors from the adjacency list
+            bidirectionalAdjacencyList[node] = [...adjacencyList[node]];
+        }
+        // add the node to the neighbors' list
+        for (const neighbor of adjacencyList[node]) {
             if (!bidirectionalAdjacencyList[neighbor]) {
-                bidirectionalAdjacencyList[neighbor] = [node];
-            } else if (!bidirectionalAdjacencyList[neighbor].includes(node)) {
+                bidirectionalAdjacencyList[neighbor] = [...adjacencyList[neighbor]];
+            }
+            if (!bidirectionalAdjacencyList[neighbor].includes(node)) {
                 bidirectionalAdjacencyList[neighbor].push(node);
             }
         }
