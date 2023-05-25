@@ -29,7 +29,15 @@ const svg = d3.select("body").append("svg")
 let components = tree.getConnectedComponents(adjacency_list);
 
 // for each component that is a tree, render it
-let trees = components.filter(component => tree.isTree(component, false));
+let trees = components.filter(component => tree.isUndirectedAcyclicGraph(component));
+
+// manipulating list of unconnected adjacency lists
+tree.addEdgeToAdjacencyListComponents(trees, "2", "1");
+tree.removeEdgeFromAdjacencyListComponents(trees, "1", "5");
+tree.addNodetoAdjacencyListComponents(trees, "15", ["8", "5"]);
+tree.removeNodeFromAdjacencyListComponents(trees, "8");
+
+
 trees = trees.map(t => tree.treeAdjacencyListToNestedList(t, undefined, false));
 tree.renderTrees(svg, trees);
 tree.organizeTrees(svg);
