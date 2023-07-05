@@ -1,3 +1,12 @@
+/**
+ * Takes an adjacency list of a tree and returns a nested list
+ * This is the format that d3.tree() expects
+ * This function assumes that the underlying graph is a tree
+ * If the root is not specified, the first node in the adjacency list is used as the root
+ * @param {object} adjList - the adjacency list of the tree
+ * @param {string} root - the root of the tree (optional)
+ * @returns {Object} - nested list of the tree
+ */
 export function treeAdjacencyListToNestedList(adjList, root = null) {
     if (!root) {
         root = Object.keys(adjList)[0];
@@ -33,6 +42,12 @@ export function treeAdjacencyListToNestedList(adjList, root = null) {
 }
 
 
+/**
+ * Adds a node to the adjacency list
+ * @param {object} adjList - the adjacency list of the tree
+ * @param {string} node - the node to add to the adjacency list
+ * @param {string[]} neighbors - the neighbors of the node
+ */
 export function addNodeToAdjacencyList(adjList, node, neighbors = []) {
     // if node already exists, add neighbors to existing list (no duplicates)
     // if node does not exist, add node to list with neighbors
@@ -49,6 +64,13 @@ export function addNodeToAdjacencyList(adjList, node, neighbors = []) {
 }
 
 
+/**
+ * Adds an edge to the adjacency list
+ * @param {object} adjList - the adjacency list of the tree
+ * @param {string} parentNode - the parent node
+ * @param {string} childNode - the child node
+ * @param {boolean} bidirectional - whether the edge to be added must be bidirectional (optional)
+ */
 export function addEdgeToAdjacencyList(adjList, parentNode, childNode, bidirectional = false) {
     if (bidirectional) {
         addEdgeToAdjacencyList_bidirectional(adjList, childNode, parentNode);
@@ -57,6 +79,11 @@ export function addEdgeToAdjacencyList(adjList, parentNode, childNode, bidirecti
 }
 
 
+/**
+ * Removes a node from the adjacency list
+ * @param {object} adjList - the adjacency list of the tree
+ * @param {string} node - the node to remove from the adjacency list
+ */
 export function removeNodeFromAdjacencyList(adjList, node) {
     // remove node from adjacency list
     for (const n in adjList) {
@@ -66,6 +93,13 @@ export function removeNodeFromAdjacencyList(adjList, node) {
 }
 
 
+/**
+ * Removes an edge from the adjacency list
+ * @param {object} adjList - the adjacency list of the tree
+ * @param {string} parentNode - the parent node
+ * @param {string} childNode - the child node
+ * @param {boolean} bidirectional - whether to remove the edge in both directions (optional)
+ */
 export function removeEdgeFromAdjacencyList(adjList, parentNode, childNode, bidirectional = false) {
     if (bidirectional) {
         removeEdgeFromAdjacencyList(adjList, childNode, parentNode);
@@ -74,6 +108,11 @@ export function removeEdgeFromAdjacencyList(adjList, parentNode, childNode, bidi
 }
 
 
+/**
+ * Returns the in-degrees of all the nodes in the adjacency list
+ * @param {object} adjacencyList - the adjacency list of the tree
+ * @returns {object} - an object with the in-degrees as the keys and the nodes with that in-degree as the values
+ */
 export function getIndegrees(adjacencyList) {
     // get the in-degree of each node in the adjacency list
     const inDegree = {};
@@ -87,6 +126,11 @@ export function getIndegrees(adjacencyList) {
 }
 
 
+/**
+ * Returns at the in-degree of all the nodes in the adjacency list
+ * @param {object} adjacencyList - the adjacency list of the graph
+ * @returns {object} - an object with in-degree as the key and the nodes with that in-degree as the value
+ */
 export function getPossibleRoots_leastIndegree(adjacencyList) {
     // create an object with the in-degree as the key and the nodes with that in-degree as the value
     const inDegree = getIndegrees(adjacencyList);
@@ -101,6 +145,11 @@ export function getPossibleRoots_leastIndegree(adjacencyList) {
 } // example: input: {0: ["1", "2"], 1: ["2"], 2: ["3"], 3: []} output: {0: ["0"], 1: ["1", ], 2: ["2"]}
 
 
+/**
+ * Returns a list of nodes with zero in-degree
+ * @param {object} adjacencyList - the adjacency list of the graph
+ * @returns {string[]} - a list of nodes with zero in-degree
+ */
 export function getNodesWithZeroIndegree(adjacencyList) {
     // get list of nodes with zero in-degree
     const inDegree = getIndegrees(adjacencyList);
@@ -109,6 +158,12 @@ export function getNodesWithZeroIndegree(adjacencyList) {
 }
 
 
+/**
+ * Given an adjacecy list and a node, returns the number of nodes reachable from the node
+ * @param {object} adjacencyList - the adjacency list of the graph
+ * @param {string} node - the node to start the search from
+ * @returns {number} - the number of nodes reachable from the node
+ */
 export function getNumberofReachableNodes(adjacencyList, node) {
     // get the nodes reachable from the node
     const visited = new Set();
@@ -127,6 +182,11 @@ export function getNumberofReachableNodes(adjacencyList, node) {
 }
 
 
+/**
+ * Returns the number of reachable nodes for each node in the adjacency list
+ * @param {object} adjacencyList - the adjacency list of the graph
+ * @returns {object} - an object with the number of reachable nodes as the key and the nodes with that number of reachable nodes as the value
+ */
 export function getPossibleRoots_mostReachableNodes(adjacencyList) {
     // create an object with the number of reachable nodes as the key and the nodes with that number of reachable nodes as the value
     const reachableNodes = {};
@@ -141,27 +201,22 @@ export function getPossibleRoots_mostReachableNodes(adjacencyList) {
 }
 
 
+/**
+ *
+ * @param {object} adjacencyList - the adjacency list of the graph
+ * @returns {string[]} - the best root for visualizing the tree
+ */
 export function getBestRoot(adjacencyList) {
-    // returns the best root for visualizing the tree
-    // the best root is the node with the most reachable nodes and the least in-degree
-    const reachableNodes = getPossibleRoots_mostReachableNodes(adjacencyList);
-    const indegreeNodes = getPossibleRoots_leastIndegree(adjacencyList);
-
-    // get the intersection of the reachable nodes and the nodes with the least in-degree
-    const bestRoots = {};
-    for (const reachable in reachableNodes) {
-        if (indegreeNodes[reachable]) {
-            bestRoots[reachable] = [...new Set([...reachableNodes[reachable], ...indegreeNodes[reachable]])];
-        }
-    }
-
-    // get the best root
-    const bestRoot = bestRoots[Math.max(...Object.keys(bestRoots))];
-    return bestRoot;
+    // TODO: implement
 }
 
 
 export function isDirectedTree(adjList) {
+    /**
+     * Returns the root of the directed tree if the graph is a directed tree
+     * @param {object} adjList - the adjacency list of the graph
+     * @returns {string} - the root of the directed tree if the graph is a directed tree, null otherwise
+     */
     // check if the adjacency list is a directed tree by finding the root
     // if there is no root, return false
     // the graph is assumed to be connected
@@ -193,7 +248,7 @@ export function isDirectedTree(adjList) {
             return root;
         }
     }
-    return false;
+    return null;
 }
 
 
@@ -203,6 +258,11 @@ export function isUndirectedTree(adjList) {
 
 
 export function isDirectedAcyclicGraph(adjacencyList) {
+    /**
+     * Returns true if the graph is a directed acyclic graph, false otherwise
+     * @param {object} adjacencyList - the adjacency list of the graph
+     * @returns {boolean} - true if the graph is a directed acyclic graph, false otherwise
+     */
     const visited = new Set();
     // define searchVisited as a set without instantiating it as new set
     let searchVisited;
@@ -237,7 +297,12 @@ export function isDirectedAcyclicGraph(adjacencyList) {
 
 
 export function isUndirectedAcyclicGraph(adjacencyList) {
-    // i.e. is an undirected tree
+    /**
+     * Returns true if the graph is an undirected acyclic graph, false otherwise
+     * @param {object} adjacencyList - the adjacency list of the graph
+     * @returns {boolean} - true if the graph is an undirected acyclic graph, false otherwise
+     */
+
     const bidirectionalAdjacencyList = makeAdjacencyListBidirectional(adjacencyList);
 
     // get any node to be the root
@@ -264,6 +329,12 @@ export function isUndirectedAcyclicGraph(adjacencyList) {
 
 
 export function getConnectedComponents(adjList, bidirectional = false) {
+    /**
+     * Seperates the graph into connected components
+     * @param {object} adjList - the adjacency list of the graph
+     * @param {boolean} bidirectional - true if the graph is bidirectional, false otherwise
+     * @returns {object[]} - an array of objects where each object is an adjacency list of a connected component
+     */
     if (bidirectional) {
         return getConnectedComponents_undirected(adjList);
     } else {
@@ -273,6 +344,12 @@ export function getConnectedComponents(adjList, bidirectional = false) {
 
 
 export function addNodetoAdjacencyListComponents(components, node, neighbors = []) {
+    /**
+     * Adds a node to a list of components
+     * @param {object[]} components - an array of objects where each object is an adjacency list of a connected component
+     * @param {string} node - the node to be added
+     * @param {string[]} neighbors - the neighbors of the node
+     */
     // each of the components is of the form {node: [neighbors]}
     // if node has no neighbors, add it to a new component
     if (neighbors.length === 0) {
@@ -307,6 +384,11 @@ export function addNodetoAdjacencyListComponents(components, node, neighbors = [
 
 
 export function removeNodeFromAdjacencyListComponents(components, node) {
+    /**
+     * Removes a node from a list of components
+     * @param {object[]} components - an array of objects where each object is an adjacency list of a connected component
+     * @param {string} node - the node to be removed
+     */
     // remove node from adjacency list
     for (const component of components) {
         if (component[node]) {
@@ -333,6 +415,13 @@ export function removeNodeFromAdjacencyListComponents(components, node) {
 
 
 export function addEdgeToAdjacencyListComponents(components, parentNode, childNode) {
+    /**
+     * Adds an edge to a list of components
+     * @param {object[]} components - an array of objects where each object is an adjacency list of a connected component
+     * @param {string} parentNode - the parent node of the edge
+     * @param {string} childNode - the child node of the edge
+     *
+     */
     // get the component that contain the parent and child nodes
     let parentComponent;
     let childComponent;
@@ -369,6 +458,12 @@ export function addEdgeToAdjacencyListComponents(components, parentNode, childNo
 
 
 export function removeEdgeFromAdjacencyListComponents(components, parentNode, childNode) {
+    /**
+     * Removes an edge from a list of components
+     * @param {object[]} components - an array of objects where each object is an adjacency list of a connected component
+     * @param {string} parentNode - the parent node of the edge
+     * @param {string} childNode - the child node of the edge
+     */
     // get the component that contain the parent and child nodes
     let parentComponent;
     for (const component of components) {
@@ -393,6 +488,11 @@ export function removeEdgeFromAdjacencyListComponents(components, parentNode, ch
 
 
 export function getConnectedComponents_directed(adjList) {
+    /**
+     * Returns an array of adjacency lists of the connected components of a directed graph
+     * @param {object} adjList - an adjacency list of a directed graph
+     * @returns {object[]} an array of adjacency lists of the connected components of a directed graph
+     */
     const visited = new Set();
     const components = [];
 
@@ -427,6 +527,11 @@ export function getConnectedComponents_directed(adjList) {
 
 
 export function getConnectedComponents_undirected(adjList) {
+    /**
+     * Returns an array of adjacency lists of the connected components of an undirected graph
+     * @param {object} adjList - an adjacency list of an undirected graph
+     * @returns {object[]} an array of adjacency lists of the connected components of an undirected graph
+     */
     const visited = new Set();
     const components = [];
 
@@ -454,6 +559,11 @@ export function getConnectedComponents_undirected(adjList) {
 
 
 export function isBidirectional(adjacencyList) {
+    /**
+     * Returns true if the graph is bidirectional, false otherwise
+     * @param {object} adjacencyList - an adjacency list of a graph
+     * @returns {boolean} true if the graph is bidirectional, false otherwise
+     */
     for (const [node, neighbors] of Object.entries(adjacencyList)) {
         for (const neighbor of neighbors) {
             if (!adjacencyList[neighbor] || !adjacencyList[neighbor].includes(node)) {
@@ -466,6 +576,11 @@ export function isBidirectional(adjacencyList) {
 
 
 export function makeAdjacencyListBidirectional(adjacencyList) {
+    /**
+     * Returns a bidirectional adjacency list of a graph
+     * @param {object} adjacencyList - an adjacency list of a graph
+     * @returns {object} a bidirectional adjacency list of a graph
+     */
     const bidirectionalAdjacencyList = {};
     // add all the nodes to the bidirectional adjacency list
     for (const node in adjacencyList) {
@@ -488,6 +603,11 @@ export function makeAdjacencyListBidirectional(adjacencyList) {
 
 
 export function getReverseAdjacencyList(adjacencyList) {
+    /**
+     * Returns the reverse adjacency list of a graph
+     * @param {object} adjacencyList - an adjacency list of a graph
+     * @returns {object} the reverse adjacency list of a graph
+     */
     const reverseAdjacencyList = {};
     for (const node in adjacencyList) {
         for (const neighbor of adjacencyList[node]) {
@@ -502,6 +622,11 @@ export function getReverseAdjacencyList(adjacencyList) {
 
 
 export function mergeAdjacencyListsOfUnconnectedGraphs(...adjLists) {
+    /**
+     * Returns a single adjacency list of an unconnected graph
+     * @param {...object} adjLists - adjacency lists of unconnected graphs
+     * @returns {object} a single adjacency list of an unconnected graph
+     */
     // Combine the lists into a single object using Object.assign()
     // Does not remove duplicates
     // Use to merge unconnected graphs
@@ -510,11 +635,20 @@ export function mergeAdjacencyListsOfUnconnectedGraphs(...adjLists) {
 
 
 export function clearSVG(svg) {
+    /**
+     * Clears the SVG
+     * @param {object} svg - the SVG to clear
+     */
     svg.selectAll("*").remove();
 }
 
 
 export function renderTrees(svg, trees) {
+    /**
+     * Renders the multiplr trees in the SVG
+     * @param {object} svg - the SVG to render the trees in
+     * @param {object[]} trees - the trees to render
+     */
     // render each tree in the list of trees
     const treeLayout = initializeTreeLayout();
     for (const tree of trees) {
@@ -524,6 +658,11 @@ export function renderTrees(svg, trees) {
 
 
 export function initializeTreeLayout() {
+    /**
+     * Initializes the tree layout
+     * Used to render the trees
+     * @returns {object} the tree layout
+     */
     return d3.tree()
         .nodeSize([50, 50])
         .separation((a, b) => a.parent === b.parent ? 1 : 2);
@@ -531,6 +670,11 @@ export function initializeTreeLayout() {
 
 
 export function organizeTrees(svg, margin = 25) {
+    /**
+     * Organizes the trees in the SVG
+     * @param {object} svg - the SVG to organize the trees in
+     * @param {number} margin - the margin between trees
+     */
     const treeGroup = svg.selectAll(".tree");
 
     let currentWidth = 0;
@@ -573,6 +717,12 @@ export function organizeTrees(svg, margin = 25) {
 
 
 export function renderTree(svg, nestedList, treeLayout = null) {
+    /**
+     * Renders a tree in the SVG
+     * @param {object} svg - the SVG to render the tree in
+     * @param {object} nestedList - the tree to render
+     * @param {object} treeLayout - the tree layout to use
+     */
     if (!treeLayout) {
         treeLayout = initializeTreeLayout();
     }
